@@ -1,8 +1,11 @@
-export function basicNoiseReducer(samples: number[]) {
-  // Very rough prototype for noise reduction
-  return samples.map((v, i) => {
-    const prev = samples[i - 1] ?? v;
-    const next = samples[i + 1] ?? v;
-    return (prev + v + next) / 3; // moving average
-  });
+import { basicNoiseReducer } from "./noiseModel";
+import fft from "fft-js";
+
+export function fftNoiseFilter(samples: number[]) {
+  const phasors = fft.fft(samples);
+  // remove high-frequency noise
+  const filtered = phasors.map((x, i) =>
+    i > phasors.length * 0.8 ? [0, 0] : x
+  );
+  return fft.ifft(filtered).map(x => x[0]);
 }
